@@ -1,0 +1,33 @@
+CREATE TABLE IF NOT EXISTS brands (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  manufacturer VARCHAR(150),
+  category VARCHAR(100),
+  country VARCHAR(100),
+  description TEXT,
+  status VARCHAR(20) DEFAULT 'Active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS items (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  type VARCHAR(20) DEFAULT 'Item',
+  category VARCHAR(100),
+  brand VARCHAR(120),
+  brand_id INTEGER REFERENCES brands(id) ON DELETE SET NULL,
+  part_number VARCHAR(80),
+  hsn_code VARCHAR(50),
+  unit VARCHAR(50) DEFAULT 'Nos',
+  description TEXT,
+  purchase_price NUMERIC(14,2) DEFAULT 0,
+  selling_price NUMERIC(14,2) DEFAULT 0,
+  rate NUMERIC(14,2) DEFAULT 0,
+  gst_rate NUMERIC(6,2) DEFAULT 0,
+  stock NUMERIC(14,2) DEFAULT 0,
+  min_stock NUMERIC(14,2) DEFAULT 0,
+  status VARCHAR(20) DEFAULT 'Active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

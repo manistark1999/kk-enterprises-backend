@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS suppliers (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  contact_person VARCHAR(150),
+  category VARCHAR(100),
+  company VARCHAR(150),
+  phone VARCHAR(30),
+  mobile VARCHAR(30),
+  email VARCHAR(150),
+  gst_number VARCHAR(50),
+  address TEXT,
+  city VARCHAR(100),
+  state VARCHAR(100),
+  pincode VARCHAR(20),
+  credit_limit NUMERIC(14,2) DEFAULT 0,
+  credit_days INTEGER DEFAULT 0,
+  bank_account VARCHAR(100),
+  ifsc_code VARCHAR(30),
+  status VARCHAR(20) DEFAULT 'Active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
