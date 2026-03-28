@@ -7,7 +7,7 @@ const getAll = async (req, res) => {
     const result = await pool.query('SELECT * FROM bank_transactions WHERE is_deleted = false ORDER BY transaction_date DESC, created_at DESC');
     res.json({ success: true, data: result.rows });
   } catch (err) {
-    console.error('[BankTransaction] getAll error:', err.message);
+    console.error('[BANK_TX_GETALL_ERROR]', err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
@@ -45,14 +45,13 @@ const create = async (req, res) => {
       title: `${type} Transaction: ${bank_name}`,
       description: `${type} of ${amount} in ${bank_name} (${account_no}).`,
       changed_data: record,
-      user_name: 'admin'
+      user_name: req.user ? req.user.email.split('@')[0] : 'admin'
     });
 
     await client.query('COMMIT');
     res.status(201).json({ success: true, message: 'Transaction saved', data: record });
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error('[BankTransaction] create error:', err.message);
     res.status(500).json({ success: false, message: err.message });
   } finally {
     client.release();
@@ -82,7 +81,7 @@ const remove = async (req, res) => {
       title: `Deleted Transaction: ${bank_name}`,
       description: `${type} of ${amount} in ${bank_name} (${account_no}) was soft-deleted.`,
       changed_data: check.rows[0],
-      user_name: 'admin'
+      user_name: req.user ? req.user.email.split('@')[0] : 'admin'
     });
 
     await client.query('COMMIT');
