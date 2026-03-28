@@ -13,20 +13,43 @@ console.log('[DB] Environment Check:', {
   DB_USER: process.env.DB_USER
 });
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: String(process.env.DB_PASSWORD || ''), // Coerce to string
-});
+const isProduction = process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT;
+
+let poolConfig = {};
+
+if (process.env.DATABASE_URL) {
+  poolConfig = {
+    connectionString: process.env.DATABASE_URL,
+  };
+  
+  // Railway internal connections don't use SSL
+  // ONLY enable SSL if we are NOT using the internal Railway hostname
+  if (isProduction && !process.env.DATABASE_URL.includes('railway.internal')) {
+    poolConfig.ssl = { rejectUnauthorized: false };
+  }
+} else {
+  poolConfig = {
+    host: process.env.PGHOST || process.env.DB_HOST,
+    port: Number(process.env.PGPORT || process.env.DB_PORT || 5432),
+    database: process.env.PGDATABASE || process.env.DB_NAME,
+    user: process.env.PGUSER || process.env.DB_USER,
+    password: String(process.env.PGPASSWORD || process.env.DB_PASSWORD || ''),
+  };
+  
+  // Disable SSL if connecting via internal network on Railway
+  if (isProduction && process.env.PGHOST && !process.env.PGHOST.includes('railway.internal')) {
+    poolConfig.ssl = { rejectUnauthorized: false };
+  }
+}
+
+const pool = new Pool(poolConfig);
 
 pool.on('connect', () => {
   console.log('PostgreSQL connected successfully');
 });
 
 pool.on('error', (err) => {
-  console.error('Unexpected PostgreSQL error:', err.message);
+  console.error('[PG-POOL-ERROR] Unexpected error on inactive client', err);
 });
 
 module.exports = pool;
